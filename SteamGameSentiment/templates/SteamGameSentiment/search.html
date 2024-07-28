@@ -1,0 +1,183 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Product List</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
+    <style>
+        body {
+            font-family: 'Clash Display', cursive;
+            margin: 0;
+            padding: 0;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            background-color: #ffffff;
+            box-shadow: 0px 4px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .navbar a {
+            float: left;
+            display: block;
+            color: #0F172A; /* Adjust link color */
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+
+        .navbar a.logo {
+            font-size: 1.5em;
+            font-weight: 500;
+            color: #0F172A;
+        }
+
+        .navbar .logo img {
+            border-radius: 50%;
+            height: 50px;
+            width: 50px;
+            margin-right: 20px;
+        }
+
+        .search-container {
+            margin: 120px 20px 40px;
+        }
+
+        .button-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .button-container h1 {
+            margin: 0;
+            font-size: 24px;
+            color: #0F172A;
+        }
+
+        .go-to-sentiment {
+            margin-left: 20px;
+        }
+
+        .go-to-sentiment button {
+            padding: 10px 20px;
+            background-color: #4ADE80;
+            color: #0F172A;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 400;
+            position: relative;
+        }
+
+        .go-to-sentiment button:hover {
+            background-color: #0F172A;
+            color: #4ADE80;
+            cursor: pointer;
+            transition: transform 0.8s ease;
+            border: 2px solid #4ADE80;
+        }
+
+        .go-to-sentiment .button-spinner {
+            display: none;
+        }
+
+        .go-to-sentiment button.loading {
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            font-weight: 500;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .total-count {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: 500;
+            color: #0F172A;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="#" class="logo">
+            <img src="{% static 'logo.png' %}" alt="Logo"> Group 16 - Learners
+        </a>
+    </div>
+
+    <div class="search-container">
+        <div class="button-container">
+            <h1>Game List</h1>
+            <div class="go-to-sentiment">
+                <a href="{% url 'sentiment_analysis' %}">
+                    <button type="button" id="go-to-sentiment-button">
+                        Go to Sentiment Analysis
+                        <span class="button-spinner" id="button-spinner" style="display: none;"></span>
+                    </button>
+                </a>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Game ID</th>
+                    <th>Game Name</th>
+                    <th>Game Genre</th>
+                    <th>Total Reviews</th>
+                    <!-- <th>Good Adjectives Count</th> -->
+                    <!-- <th>Bad Adjectives Count</th> -->
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in product_counts %}
+                    <tr>
+                        <td>{{ product.app_id }}</td>
+                        <td>{{ product.app_name }}</td>
+                        <td>{{ product.genre }}</td>
+                        <td>{{ product.total_reviews }}</td>
+                        <!-- <td>{{ product.good_count }}</td> -->
+                        <!-- <td>{{ product.bad_count }}</td> -->
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="total-count">
+            Total Game IDs: {{ product_counts|length }}
+        </div>
+    </div>
+
+
+</body>
+</html>

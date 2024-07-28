@@ -1,0 +1,250 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sentiment Analysis</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
+    <style>
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #f8f8f8;
+            height: 60px;
+        }
+        .navbar .logo img {
+            height: 50px;
+        }
+        .navbar .see-all-games-button {
+            background-color: #4ADE80;
+            border: none;
+            color: #0F172A;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-right: 50px;
+            transition: transform 0.5s ease;
+        }
+        .navbar .see-all-games-button:hover {
+            transform: scale(1.05);
+            background-color: #0F172A;
+            color: #4ADE80;
+            cursor: pointer;
+            transition: transform 0.8s ease;
+            border: 2px solid #4ADE80;
+        }
+        .summary-section {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+        .summary-box {
+            background-color: #f2f2f2;
+            border-radius: 8px;
+            padding: 20px;
+            width: 45%;
+            text-align: center;
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.06);
+        }
+        .summary-title {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .summary-content {
+            font-size: 24px;
+            font-weight: 400;
+        }
+        .summary-content.good {
+            color: #4BB543;
+        }
+        .summary-content.bad {
+            color: #ff0e0e;
+        }
+        .top-words-box {
+            background-color: #f2f2f2;
+            border-radius: 8px;
+            padding: 20px;
+            width: 95%;
+            margin: 20px auto;
+            text-align: center;
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.06);
+        }
+        .top-words-title {
+            font-weight: 600;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+        .top-words-content {
+            font-weight: 400;
+            font-size: 24px;
+            display: flex;
+            justify-content: space-around;
+        }
+        .top-word {
+            background-color: #ade8f4;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 0 10px;
+        }
+        .word-cloud-section h2 {
+            font-size: 28px;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .word-cloud-image {
+            display: block;
+            margin: 0 auto;
+        }
+        .error-message {
+            color: #ff0e0e;
+            font-size: 18px;
+            font-weight: 500;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .recommended-game-box {
+            background-color: #f2f2f2;
+            border-radius: 8px;
+            padding: 20px;
+            width: 95%;
+            margin: 20px auto;
+            text-align: center;
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.06);
+        }
+        .recommended-game-title {
+            font-weight: 600;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+        .recommended-game-content {
+            font-weight: 400;
+            font-size: 24px;
+            display: flex;
+            justify-content: space-around;
+        }
+        .recommended-game-info {
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 0 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="#" class="logo">
+            <img src="{% static 'logo.png' %}" alt="Logo"> Group 16 - Learners
+        </a>
+        <a href="{% url 'search_product' %}" class="see-all-games-button">
+            See All Games
+        </a>
+    </div>
+    <div class="search-container">
+        <h1 style="font-weight: 500; text-align: center">Sentiment Analysis of Steam Games Reviews</h1>
+        <div class="centered-form-container">
+            <form method="post" id="sentiment-form">
+                {% csrf_token %}
+                <div class="form-row">
+                    {{ form.app_id.label_tag }} {{ form.app_id }}
+                    {{ form.algorithm.label_tag }} {{ form.algorithm }}
+                    <button type="submit" id="analyze-button">
+                        Analyze
+                        <span class="button-spinner" id="button-spinner" style="display: none;"></span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    {% if result %}
+        <div class="game-details-section">
+            <div class="top-words-box">
+                <div class="top-words-title">Game Details</div>
+                <div class="top-words-content">
+                    <div class="top-word" style="background-color: #ffffff;"><strong>Game ID:</strong> {{ result.app_id }}</div>
+                    <div class="top-word" style="background-color: #ffffff;"><strong>Name:</strong> {{ result.app_name }}</div>
+                    <div class="top-word" style="background-color: #ffffff;"><strong>Genre:</strong> {{ result.genre }}</div>
+                </div>
+            </div>
+        </div>
+        {% if result.error %}
+            <p class="error-message">{{ result.error }}</p>
+        {% else %}
+            <div class="summary-section">
+                <div class="summary-box">
+                    <div class="summary-title">Overall Sentiment</div>
+                    <div class="summary-content {% if result.overall_sentiment == 'Good' %}good{% elif result.overall_sentiment == 'Bad' %}bad{% endif %}">
+                        {{ result.overall_sentiment }}
+                    </div>
+                </div>
+                <div class="summary-box">
+                    <div class="summary-title">Accuracy</div>
+                    <div class="summary-content good">
+                        {{ result.accuracy|floatformat:2 }}%
+                    </div>
+                </div>
+            </div>
+
+{#            <div class="top-words-box">#}
+{#                <div class="top-words-title">Descriptive Words</div>#}
+{#                <div class="top-words-content">#}
+{#                    {% for word in result.top_4_words %}#}
+{#                        <div class="top-word">{{ word }}</div>#}
+{#                    {% endfor %}#}
+{#                </div>#}
+{#            </div>#}
+        {% endif %}
+    {% endif %}
+
+    <div class="word-cloud-section">
+        {% if result.good_wordcloud_base64 %}
+            <div class="good-reviews">
+                <h2>Good Reviews Word Cloud</h2>
+                <img src="{{ result.good_wordcloud_base64 }}" alt="Good Reviews Word Cloud" class="word-cloud-image">
+            </div>
+        {% endif %}
+
+        {% if result.bad_wordcloud_base64 %}
+            <div class="bad-reviews">
+                <h2>Bad Reviews Word Cloud</h2>
+                <img src="{{ result.bad_wordcloud_base64 }}" alt="Bad Reviews Word Cloud" class="word-cloud-image">
+            </div>
+        {% endif %}
+    </div>
+
+    {% if result.app_id == "2357570" or result.app_id == "1962660" %}
+        <div class="recommended-game-box">
+            <div class="recommended-game-title">Recommended Game</div>
+            <div class="recommended-game-content">
+                {% if result.app_id == "2357570" %}
+                    <div class="recommended-game-info"><strong>Game ID:</strong> 1172470</div>
+                    <div class="recommended-game-info"><strong>Name:</strong> Apex Legends</div>
+                    <div class="recommended-game-info"><strong>Genre:</strong> First-person shooter/Hero shooter</div>
+                {% elif result.app_id == "1962660" %}
+                    <div class="recommended-game-info"><strong>Game ID:</strong> 2000950</div>
+                    <div class="recommended-game-info"><strong>Name:</strong> Call of Duty: Modern Warfare</div>
+                    <div class="recommended-game-info"><strong>Genre:</strong> First-person shooter</div>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+
+    <script>
+        document.getElementById('sentiment-form').addEventListener('submit', function() {
+            var button = document.getElementById('analyze-button');
+            var spinner = document.getElementById('button-spinner');
+            button.disabled = true;
+            spinner.style.display = 'inline-block';
+        });
+    </script>
+</body>
+</html>
